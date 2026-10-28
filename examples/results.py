@@ -54,7 +54,7 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "examples" / "results.md"
 LEGACY_REF = "f2d8207"          # last commit with the uncorrected cost model
 
-# The power-and-energy table: (label, CLI flags). Every row is `disagg-sim` with these flags.
+# The power-and-energy table: (label, CLI flags). Every row is `optical-serving-sim` with these flags.
 POWER_ROWS = [
     ("Colocated, 2 instances", ["--mode", "colocated"]),
     ("Disaggregated 1P1D", []),
@@ -72,13 +72,13 @@ PROPORTIONALITY_RATES = [0.5, 1, 2, 4, 6]
 
 # ───────────────────────────────────────────── deterministic collection ──
 def collect() -> dict:
-    """Every deterministic number, from whichever ``disagg_sim`` is importable."""
-    from disagg_sim.cli import build_parser, config_from_args
-    from disagg_sim.hardware import H100_SXM, LLAMA3_8B, LLAMA3_70B, CostModel
-    from disagg_sim.metrics import format_report, summarise
-    from disagg_sim.search import Workload, analytic_capacity
-    from disagg_sim.sim import simulate
-    from disagg_sim.workload import LengthDist, poisson_workload
+    """Every deterministic number, from whichever ``optical_serving_sim`` is importable."""
+    from optical_serving_sim.cli import build_parser, config_from_args
+    from optical_serving_sim.hardware import H100_SXM, LLAMA3_8B, LLAMA3_70B, CostModel
+    from optical_serving_sim.metrics import format_report, summarise
+    from optical_serving_sim.search import Workload, analytic_capacity
+    from optical_serving_sim.sim import simulate
+    from optical_serving_sim.workload import LengthDist, poisson_workload
 
     def run(flags, rate=None):
         a = build_parser().parse_args(flags + (["--rate", str(rate)] if rate is not None else []))
@@ -167,7 +167,7 @@ def collect_legacy(ref: str) -> dict:
         subprocess.run(["tar", "-x", "-C", tmp], input=arch, check=True)
         env = {**os.environ, "PYTHONPATH": str(Path(tmp) / "src")}
         code = ("import json, sys; sys.path.insert(0, %r); import results; "
-                "import disagg_sim; assert disagg_sim.__file__.startswith(%r); "
+                "import optical_serving_sim; assert optical_serving_sim.__file__.startswith(%r); "
                 "print(json.dumps(results.collect()))") % (str(Path(__file__).parent), tmp)
         out = subprocess.run([sys.executable, "-c", code], env=env, check=True, capture_output=True, text=True)
         return json.loads(out.stdout)
@@ -288,7 +288,7 @@ def render(new: dict, old: dict, timings: str | None) -> str:
     p("")
 
     # 4
-    p("## 4. Load sweep (`disagg-sim --compare --sweep-rate 2 3 4 5 6 8`)")
+    p("## 4. Load sweep (`optical-serving-sim --compare --sweep-rate 2 3 4 5 6 8`)")
     p("")
     rows = []
     for r in SWEEP_RATES:
@@ -342,7 +342,7 @@ def render(new: dict, old: dict, timings: str | None) -> str:
     p("")
 
     # 7
-    p("## 7. Example report (`disagg-sim --prefill 2 --rate 6 --link eth-25g`)")
+    p("## 7. Example report (`optical-serving-sim --prefill 2 --rate 6 --link eth-25g`)")
     p("")
     p("```")
     p(new["report_link"])
@@ -384,12 +384,12 @@ TRANSIT_RATES = [8, 10, 12, 14]
 def collect_optical() -> dict:
     from dataclasses import replace
 
-    from disagg_sim.hardware import (A100_SXM, H100_SXM, KV_PRESETS, LINKS, MODELS, OPTICAL_FFT, CostModel,
+    from optical_serving_sim.hardware import (A100_SXM, H100_SXM, KV_PRESETS, LINKS, MODELS, OPTICAL_FFT, CostModel,
                                      KVTransit)
-    from disagg_sim.metrics import percentile, summarise
-    from disagg_sim.ppa import device_area, ppa_report
-    from disagg_sim.sim import SimConfig, simulate
-    from disagg_sim.workload import LengthDist, poisson_workload
+    from optical_serving_sim.metrics import percentile, summarise
+    from optical_serving_sim.ppa import device_area, ppa_report
+    from optical_serving_sim.sim import SimConfig, simulate
+    from optical_serving_sim.workload import LengthDist, poisson_workload
 
     def model(key, head="all", **kw):
         return replace(MODELS[key], prefill_lm_head=head, **kw)
@@ -779,10 +779,10 @@ CED_SMALL_PREFILL = [(2, 5), (4, 4), (6, 3), (8, 2)]   # (prefill, decode) insta
 
 def collect_ced() -> dict:
     from dataclasses import replace
-    from disagg_sim.hardware import H100_SXM, LLAMA3_70B, LLAMA3_70B_CED, CostModel
-    from disagg_sim.search import Workload, max_sustainable_rate
-    from disagg_sim.sim import SimConfig
-    from disagg_sim.workload import LengthDist
+    from optical_serving_sim.hardware import H100_SXM, LLAMA3_70B, LLAMA3_70B_CED, CostModel
+    from optical_serving_sim.search import Workload, max_sustainable_rate
+    from optical_serving_sim.sim import SimConfig
+    from optical_serving_sim.workload import LengthDist
 
     base, ced = LLAMA3_70B, LLAMA3_70B_CED
     enc = replace(ced, ced_replay_on="decode")
@@ -968,10 +968,10 @@ def collect_levers() -> dict:
     import math
     from dataclasses import replace
     from statistics import median
-    from disagg_sim.hardware import A100_40G, A100_SXM, LINKS, MODELS, CostModel
-    from disagg_sim.metrics import summarise
-    from disagg_sim.sim import SimConfig, simulate
-    from disagg_sim.workload import LengthDist, chat_sessions, poisson_workload
+    from optical_serving_sim.hardware import A100_40G, A100_SXM, LINKS, MODELS, CostModel
+    from optical_serving_sim.metrics import summarise
+    from optical_serving_sim.sim import SimConfig, simulate
+    from optical_serving_sim.workload import LengthDist, chat_sessions, poisson_workload
 
     out: dict = {}
 
@@ -1348,12 +1348,12 @@ L2_SEED = 1
 def collect_levers2() -> dict:
     """Sections 23-25: the levers in disaggregated pools, parallelism / MoE / formats, speculative decoding."""
     from dataclasses import replace
-    from disagg_sim.hardware import (A100_40G, A100_SXM, ACCELERATORS, H100_SXM, KV_PRESETS, LINKS, MODELS,
+    from optical_serving_sim.hardware import (A100_40G, A100_SXM, ACCELERATORS, H100_SXM, KV_PRESETS, LINKS, MODELS,
                                      CostModel, KVTransit, Parallel, QUANT_FORMATS)
-    from disagg_sim.metrics import summarise
-    from disagg_sim.sim import SimConfig, Simulation, simulate
-    from disagg_sim.speculative import (Speculative, expected_operations, expected_speedup, expected_tokens)
-    from disagg_sim.workload import LengthDist, chat_sessions, poisson_workload
+    from optical_serving_sim.metrics import summarise
+    from optical_serving_sim.sim import SimConfig, Simulation, simulate
+    from optical_serving_sim.speculative import (Speculative, expected_operations, expected_speedup, expected_tokens)
+    from optical_serving_sim.workload import LengthDist, chat_sessions, poisson_workload
 
     out: dict = {}
 
@@ -1847,10 +1847,10 @@ LK_PROMPT = 2048
 
 
 def collect_link_kernel() -> dict:
-    from disagg_sim.hardware import (CIT_LEDGER, KV_PRESETS, LINK_KERNELS, LINKS, MODELS, KVTransit, kv_work)
-    from disagg_sim.metrics import percentile, summarise
-    from disagg_sim.sim import SimConfig, simulate
-    from disagg_sim.workload import LengthDist, poisson_workload
+    from optical_serving_sim.hardware import (CIT_LEDGER, KV_PRESETS, LINK_KERNELS, LINKS, MODELS, KVTransit, kv_work)
+    from optical_serving_sim.metrics import percentile, summarise
+    from optical_serving_sim.sim import SimConfig, simulate
+    from optical_serving_sim.workload import LengthDist, poisson_workload
 
     out: dict = {"presets": {}, "ledger": [], "refused_kv": {}, "stream": {}, "runs": {}}
     for key, k in LINK_KERNELS.items():
@@ -1930,7 +1930,7 @@ def render_link_kernel(v: dict) -> str:
     d = pr["pluggable-10"]
     p("## 27. A general link kernel: compute in transit as a declared stage (illustrative)")
     p("")
-    p("Brief 06C (Compute in Transit). `LinkKernel` (`disagg_sim.hardware`) generalises section 15's in-transit stage:"
+    p("Brief 06C (Compute in Transit). `LinkKernel` (`optical_serving_sim.hardware`) generalises section 15's in-transit stage:"
       " it declares an operation set, a precision (bits per value through the optics, one pass per bit plane), the"
       " work's compression ratio, a placement (`pluggable` in a host's port, or `switch`) and pipelined stages: the"
       " link, the module's port, its optics, its compute budget and an FPGA stage. The slowest stage sets the"
@@ -2067,12 +2067,12 @@ DEV_RUNS = [("1P1D, 4 req/s", [], 4), ("1P1D, 8 req/s", [], 8), ("2P1D, 8 req/s"
 
 
 def collect_devices() -> dict:
-    from disagg_sim.cli import build_parser, config_from_args
-    from disagg_sim.hardware import ACCELERATORS, LLAMA3_70B, CostModel
-    from disagg_sim.metrics import summarise
-    from disagg_sim.search import Workload, analytic_capacity
-    from disagg_sim.sim import simulate
-    from disagg_sim.workload import LengthDist, poisson_workload
+    from optical_serving_sim.cli import build_parser, config_from_args
+    from optical_serving_sim.hardware import ACCELERATORS, LLAMA3_70B, CostModel
+    from optical_serving_sim.metrics import summarise
+    from optical_serving_sim.search import Workload, analytic_capacity
+    from optical_serving_sim.sim import simulate
+    from optical_serving_sim.workload import LengthDist, poisson_workload
 
     out: dict = {}
     for key in DEV_KEYS:

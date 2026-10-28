@@ -73,7 +73,7 @@ Before and after the correction:
 * Power-bound flags unchanged: True. Hot-spot stage and resource pool unchanged: True.
 * Which of two identical instances is busiest changed in: Colocated, 2 instances (prefill -> colocated-1 → prefill -> colocated-0).
 
-## 4. Load sweep (`disagg-sim --compare --sweep-rate 2 3 4 5 6 8`)
+## 4. Load sweep (`optical-serving-sim --compare --sweep-rate 2 3 4 5 6 8`)
 
 | Offered load (req/s) | Colocated TPOT p99 | Colocated SLO met | Disagg 1P1D TPOT p99 | Disagg 1P1D TTFT p99 | Disagg 1P1D SLO met |
 |---|---|---|---|---|---|
@@ -118,7 +118,7 @@ Before and after the correction:
 * Hypothetical optical part, 4 req/s: static share 65%, 2.28 J/token (before: 65%, 2.29); TTFT p99 182.5 ms, TPOT p99 15.1 ms.
 * For comparison, the GPU under a 400 W cap with DVFS: 2.26 J/token.
 
-## 7. Example report (`disagg-sim --prefill 2 --rate 6 --link eth-25g`)
+## 7. Example report (`optical-serving-sim --prefill 2 --rate 6 --link eth-25g`)
 
 ```
 ── disagg ── 800 done, 0 rejected, sim 179.6s
@@ -1025,7 +1025,7 @@ Every point is the same 8 GPUs serving Llama-3-70B; the baseline is 2 colocated 
 
 ## 27. A general link kernel: compute in transit as a declared stage (illustrative)
 
-Brief 06C (Compute in Transit). `LinkKernel` (`disagg_sim.hardware`) generalises section 15's in-transit stage: it declares an operation set, a precision (bits per value through the optics, one pass per bit plane), the work's compression ratio, a placement (`pluggable` in a host's port, or `switch`) and pipelined stages: the link, the module's port, its optics, its compute budget and an FPGA stage. The slowest stage sets the transfer time and is reported as the *binding* stage. Energy while streaming is (static + laser) power x streaming time + dynamic pJ per input bit. It is off by default (`KVTransit.kernel = None`): sections 1-26 do not use it, and it is Python only (the JavaScript port does not model it; the Rust port rejects any KV hand-off compression).
+Brief 06C (Compute in Transit). `LinkKernel` (`optical_serving_sim.hardware`) generalises section 15's in-transit stage: it declares an operation set, a precision (bits per value through the optics, one pass per bit plane), the work's compression ratio, a placement (`pluggable` in a host's port, or `switch`) and pipelined stages: the link, the module's port, its optics, its compute budget and an FPGA stage. The slowest stage sets the transfer time and is reported as the *binding* stage. Energy while streaming is (static + laser) power x streaming time + dynamic pJ per input bit. It is off by default (`KVTransit.kernel = None`): sections 1-26 do not use it, and it is Python only (the JavaScript port does not model it; the Rust port rejects any KV hand-off compression).
 
 Calibration, a photonic link module (Kundu et al., arXiv:2608.21536) with the Compute in Transit hub's definitions (`analysis/cit_budget.py`): port 25 GB/s (QSFP56); optics 7 GB/s (4 modulators x 14 GBaud NRZ, the series' arithmetic); compute budget 10 or 99 GFLOP/s (the series' reading of the paper's "tens of GFLOPs", not a measurement); operations FFT/NTT, add, multiply, MAC, floating-point MAC, modular arithmetic in the FPGA stage, and gathers: no comparisons and no rounding; static 9.7 W (the paper); dynamic 2.76 pJ/bit (the developer's website, a 45 nm estimate excluding the laser). **Illustrative:** laser 2 W, FPGA 50 G operations/s, latency 1 us, the FPGA work per value, and the mapping onto a KV hand-off. The transform costs 2.5 log2 n FLOPs per value (FFTW's convention); whether the optics' transform is charged against the budget is not public, so the `-free` presets do not charge it.
 

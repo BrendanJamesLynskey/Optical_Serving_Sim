@@ -14,8 +14,8 @@ from dataclasses import replace
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from disagg_sim import LengthDist, SimConfig, poisson_workload, simulate  # noqa: E402
-from disagg_sim.search import (Workload, analytic_capacity, max_sustainable_rate,  # noqa: E402
+from optical_serving_sim import LengthDist, SimConfig, poisson_workload, simulate  # noqa: E402
+from optical_serving_sim.search import (Workload, analytic_capacity, max_sustainable_rate,  # noqa: E402
                                sweep)
 
 

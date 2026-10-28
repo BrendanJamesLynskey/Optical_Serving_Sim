@@ -18,12 +18,12 @@ from pathlib import Path
 
 import pytest
 
-from disagg_sim.cli import build_parser, config_from_args, workload_from_args
-from disagg_sim.hardware import (A100_40G, A100_SXM, H100_SXM, LINKS, LLAMA3_8B, LLAMA3_8B_CED, LLAMA3_8B_HYENA,
+from optical_serving_sim.cli import build_parser, config_from_args, workload_from_args
+from optical_serving_sim.hardware import (A100_40G, A100_SXM, H100_SXM, LINKS, LLAMA3_8B, LLAMA3_8B_CED, LLAMA3_8B_HYENA,
                                  LLAMA3_70B, MISTRAL_7B, MODELS, OPT_13B, CostModel)
-from disagg_sim.metrics import format_report, summarise
-from disagg_sim.sim import PrefixCache, ScheduledInstance, SimConfig, Simulation, simulate
-from disagg_sim.workload import (LengthDist, chat_sessions, dump_workload, load_workload, poisson_workload,
+from optical_serving_sim.metrics import format_report, summarise
+from optical_serving_sim.sim import PrefixCache, ScheduledInstance, SimConfig, Simulation, simulate
+from optical_serving_sim.workload import (LengthDist, chat_sessions, dump_workload, load_workload, poisson_workload,
                                  workload_rows)
 
 C8 = SimConfig(mode="colocated", model=LLAMA3_8B, devices_per_instance=1)

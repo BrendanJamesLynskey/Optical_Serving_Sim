@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "disagg-sim"
+name = "optical-serving-sim"
 version = "0.1.0"
 description = "A SimPy discrete-event simulator for prefill/decode-disaggregated LLM inference, with latency, utilisation and hot-spot metrics."
 readme = "README.md"
@@ -22,7 +22,7 @@ dev = [
 ]
 
 [project.scripts]
-disagg-sim = "disagg_sim.cli:main"
+optical-serving-sim = "optical_serving_sim.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

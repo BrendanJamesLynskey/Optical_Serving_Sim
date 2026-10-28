@@ -14,11 +14,11 @@ from pathlib import Path
 
 import pytest
 
-from disagg_sim import (ACCELERATORS, LINKS, MODELS, CostModel, LengthDist, SimConfig,
+from optical_serving_sim import (ACCELERATORS, LINKS, MODELS, CostModel, LengthDist, SimConfig,
                         poisson_workload, simulate, summarise)
-from disagg_sim.hardware import (ENOB_REQUIRED, KV_PRESETS, OPTICAL_FFT, KVTransit, ModelSpec,
+from optical_serving_sim.hardware import (ENOB_REQUIRED, KV_PRESETS, OPTICAL_FFT, KVTransit, ModelSpec,
                                  TransformEngine)
-from disagg_sim.ppa import device_area, dies_per_wafer, murphy_yield, ppa_report
+from optical_serving_sim.ppa import device_area, dies_per_wafer, murphy_yield, ppa_report
 
 H100, A100 = ACCELERATORS["h100"], ACCELERATORS["a100"]
 L8B = MODELS["llama3-8b"]
@@ -286,7 +286,7 @@ def test_ppa_report_totals():
 
 # ── 6. CLI ───────────────────────────────────────────────────────────────
 def cli(*args):
-    from disagg_sim.cli import main
+    from optical_serving_sim.cli import main
     buf = io.StringIO()
     with redirect_stdout(buf):
         main(list(args))

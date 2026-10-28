@@ -23,11 +23,11 @@ from pathlib import Path
 
 import pytest
 
-from disagg_sim.hardware import (CIT_LEDGER, GB, KV_PRESETS, LINK_KERNELS, LINKS, MODELS, KernelWork, KVTransit,
+from optical_serving_sim.hardware import (CIT_LEDGER, GB, KV_PRESETS, LINK_KERNELS, LINKS, MODELS, KernelWork, KVTransit,
                                  LinkKernel, band_work, kv_work, pow2_at_least, transform_per_value)
-from disagg_sim.metrics import summarise
-from disagg_sim.sim import SimConfig, simulate
-from disagg_sim.workload import LengthDist, poisson_workload
+from optical_serving_sim.metrics import summarise
+from optical_serving_sim.sim import SimConfig, simulate
+from optical_serving_sim.workload import LengthDist, poisson_workload
 
 FIX = Path(__file__).parent / "fixtures"
 HUB = json.loads((FIX / "cit_budget_hub.json").read_text())
@@ -184,7 +184,7 @@ def test_unknown_operation_and_placement():
 
 
 def test_cli_refuses_with_a_message():
-    r = subprocess.run([sys.executable, "-m", "disagg_sim", "--model", "llama3-8b", "--devices-per-instance", "1",
+    r = subprocess.run([sys.executable, "-m", "optical_serving_sim", "--model", "llama3-8b", "--devices-per-instance", "1",
                         "--kv-compress", "fp8", "--link-kernel", "pluggable-10", "--requests", "5"],
                        capture_output=True, text=True)
     assert r.returncode != 0 and "does not have" in r.stderr

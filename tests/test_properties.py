@@ -5,7 +5,7 @@ import pytest
 hypothesis = pytest.importorskip("hypothesis")
 from hypothesis import given, settings, strategies as st  # noqa: E402
 
-from disagg_sim import LengthDist, SimConfig, poisson_workload, simulate  # noqa: E402
+from optical_serving_sim import LengthDist, SimConfig, poisson_workload, simulate  # noqa: E402
 
 
 @settings(max_examples=40, deadline=None)
@@ -29,7 +29,7 @@ def test_sort_once_summary_equals_sorting_per_percentile(xs):
     import math
     from statistics import fmean
 
-    from disagg_sim.metrics import _dist, percentile
+    from optical_serving_sim.metrics import _dist, percentile
 
     old = {"mean": fmean(xs) if xs else math.nan, "p50": percentile(xs, 50), "p90": percentile(xs, 90),
            "p99": percentile(xs, 99), "max": max(xs) if xs else math.nan}

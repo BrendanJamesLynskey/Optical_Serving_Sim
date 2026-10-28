@@ -1,20 +1,20 @@
 """Command-line front end.
 
-    disagg-sim                                   # one disaggregated run, report to stdout
-    disagg-sim --compare                         # colocated vs disaggregated, same GPUs
-    disagg-sim --sweep-rate 2 4 8 16             # load sweep: where does goodput collapse?
-    disagg-sim --trace run.json                  # Perfetto / chrome://tracing timeline
-    disagg-sim --model llama3-8b --devices-per-instance 1 --prefill-device h100 --decode-device a100
-    disagg-sim --model llama3-8b-hyena-circ --devices-per-instance 1 --prefill-device optical-fft --decode-device h100
-    disagg-sim --model llama3-8b --devices-per-instance 1 --link eth-25g --kv-compress fp8 --kv-compress-at transit
-    disagg-sim --model llama3-8b --devices-per-instance 1 --link ib-ndr --kv-compress freq-keep-k --link-kernel pluggable-99-free
-    disagg-sim --model llama3-70b-ced --ced-replay-on decode --prefill-devices-per-instance 2
-    disagg-sim --mode colocated --model llama3-8b --devices-per-instance 1 --batch-policy chunked --max-num-batched-tokens 512
-    disagg-sim --mode colocated --model opt-13b --device a100-40g --devices-per-instance 1 --kv-policy paged --preemption swap
-    disagg-sim --mode colocated --model llama3-8b --devices-per-instance 1 --prefix-caching --turns 4 --think 2 --system-prompts 4 --system-len 1024
-    disagg-sim --model opt-13b --device a100-40g --devices-per-instance 1 --kv-policy paged --preemption swap
-    disagg-sim --mode colocated --model llama3-70b --tp 4 --weight-format fp8 --compute-format fp8 --workload chat
-    disagg-sim --mode colocated --model llama3-8b --devices-per-instance 1 --speculative mtp --gamma 3 --alpha 0.7
+    optical-serving-sim                                   # one disaggregated run, report to stdout
+    optical-serving-sim --compare                         # colocated vs disaggregated, same GPUs
+    optical-serving-sim --sweep-rate 2 4 8 16             # load sweep: where does goodput collapse?
+    optical-serving-sim --trace run.json                  # Perfetto / chrome://tracing timeline
+    optical-serving-sim --model llama3-8b --devices-per-instance 1 --prefill-device h100 --decode-device a100
+    optical-serving-sim --model llama3-8b-hyena-circ --devices-per-instance 1 --prefill-device optical-fft --decode-device h100
+    optical-serving-sim --model llama3-8b --devices-per-instance 1 --link eth-25g --kv-compress fp8 --kv-compress-at transit
+    optical-serving-sim --model llama3-8b --devices-per-instance 1 --link ib-ndr --kv-compress freq-keep-k --link-kernel pluggable-99-free
+    optical-serving-sim --model llama3-70b-ced --ced-replay-on decode --prefill-devices-per-instance 2
+    optical-serving-sim --mode colocated --model llama3-8b --devices-per-instance 1 --batch-policy chunked --max-num-batched-tokens 512
+    optical-serving-sim --mode colocated --model opt-13b --device a100-40g --devices-per-instance 1 --kv-policy paged --preemption swap
+    optical-serving-sim --mode colocated --model llama3-8b --devices-per-instance 1 --prefix-caching --turns 4 --think 2 --system-prompts 4 --system-len 1024
+    optical-serving-sim --model opt-13b --device a100-40g --devices-per-instance 1 --kv-policy paged --preemption swap
+    optical-serving-sim --mode colocated --model llama3-70b --tp 4 --weight-format fp8 --compute-format fp8 --workload chat
+    optical-serving-sim --mode colocated --model llama3-8b --devices-per-instance 1 --speculative mtp --gamma 3 --alpha 0.7
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ from .workload import WORKLOADS, LengthDist, chat_sessions, poisson_workload
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="disagg-sim", description=__doc__,
+    p = argparse.ArgumentParser(prog="optical-serving-sim", description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--model", choices=MODELS, default="llama3-70b")
     p.add_argument("--device", choices=ACCELERATORS, default="h100")

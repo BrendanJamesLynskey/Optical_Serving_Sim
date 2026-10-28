@@ -14,9 +14,9 @@ from pathlib import Path
 
 import pytest
 
-from disagg_sim import (ACCELERATORS, LINKS, MODELS, CostModel, LengthDist, ModelSpec,
+from optical_serving_sim import (ACCELERATORS, LINKS, MODELS, CostModel, LengthDist, ModelSpec,
                         SimConfig, poisson_workload, simulate, summarise)
-from disagg_sim.workload import dump_workload, load_workload
+from optical_serving_sim.workload import dump_workload, load_workload
 
 H100 = ACCELERATORS["h100"]
 L8B, L70B = MODELS["llama3-8b"], MODELS["llama3-70b"]
@@ -188,7 +188,7 @@ def test_more_prefill_instances_cut_ttft():
 def test_prefill_dispatch_counts_the_batch_in_flight():
     """A prompt arriving while every other instance is idle starts at once: the busy instance's load includes the
     batch it is prefilling, not just its (empty) queue. Before 2026-10-28 all four went to prefill-0 and queued."""
-    from disagg_sim.workload import Request
+    from optical_serving_sim.workload import Request
     wl = [Request(i, 0.001 * i, 2048, 4) for i in range(4)]
     res = simulate(SimConfig(n_prefill=4, n_decode=1), wl)
     assert [r.prefill_start for r in res.requests] == [r.arrival for r in res.requests]
@@ -223,7 +223,7 @@ def test_fast_forward_metrics_match():
 
 
 def test_analytic_ceiling_bounds_the_simulated_knee():
-    from disagg_sim.search import Workload, analytic_capacity, max_sustainable_rate, sweep
+    from optical_serving_sim.search import Workload, analytic_capacity, max_sustainable_rate, sweep
     cfg = SimConfig(fast_forward=True)
     wl = Workload(LengthDist(2048, 0.5), LengthDist(128, 0.5), n=300, seed=7)
     cap = analytic_capacity(cfg, wl)

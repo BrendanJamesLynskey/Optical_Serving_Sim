@@ -18,15 +18,15 @@ from pathlib import Path
 
 import pytest
 
-from disagg_sim.cli import build_parser, config_from_args, workload_from_args
-from disagg_sim.hardware import (A100_40G, A100_SXM, ACCELERATORS, B200, H100_SXM, H200_SXM, KV_PRESETS, LINKS,
+from optical_serving_sim.cli import build_parser, config_from_args, workload_from_args
+from optical_serving_sim.hardware import (A100_40G, A100_SXM, ACCELERATORS, B200, H100_SXM, H200_SXM, KV_PRESETS, LINKS,
                                  LLAMA32_1B, LLAMA3_70B, LLAMA3_70B_CED, LLAMA3_8B, LLAMA3_8B_HYENA, MIXTRAL_8X7B, MODELS,
                                  OPT_13B, OPTICAL_FFT, QUANT_FORMATS, CostModel, KVTransit, Parallel, ipow)
-from disagg_sim.metrics import format_report, summarise
-from disagg_sim.sim import (ScheduledDecodeInstance, ScheduledPrefillInstance, SimConfig, Simulation, simulate)
-from disagg_sim.speculative import (Speculative, draw_accepted, expected_operations, expected_speedup, expected_tokens,
+from optical_serving_sim.metrics import format_report, summarise
+from optical_serving_sim.sim import (ScheduledDecodeInstance, ScheduledPrefillInstance, SimConfig, Simulation, simulate)
+from optical_serving_sim.speculative import (Speculative, draw_accepted, expected_operations, expected_speedup, expected_tokens,
                                     mulberry32, seed_state)
-from disagg_sim.workload import LengthDist, chat_sessions, poisson_workload, workload_rows
+from optical_serving_sim.workload import LengthDist, chat_sessions, poisson_workload, workload_rows
 
 D8 = SimConfig(model=LLAMA3_8B, devices_per_instance=1, n_prefill=1, n_decode=1)
 OPTD = SimConfig(model=OPT_13B, device=A100_40G, devices_per_instance=1, n_prefill=1, n_decode=1,

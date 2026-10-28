@@ -23,4 +23,4 @@ jobs:
       - name: Tests (simulator, properties, closed forms, JavaScript port bit-exact with Python)
         run: pytest -rs
       - name: CLI smoke test (disaggregated vs colocated)
-        run: disagg-sim --compare --requests 300
+        run: optical-serving-sim --compare --requests 300

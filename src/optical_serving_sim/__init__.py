@@ -1,4 +1,4 @@
-"""disagg_sim — a SimPy simulator for prefill/decode-disaggregated LLM inference."""
+"""optical_serving_sim — a SimPy simulator for prefill/decode-disaggregated LLM inference."""
 
 from .hardware import (ACCELERATORS, LINKS, MODELS, Accelerator, CostModel, Link,
                        ModelSpec)

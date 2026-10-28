@@ -1,14 +1,32 @@
-# Disaggregated_Inference_Sim
+# Optical_Serving_Sim
+
+The optical and compute-in-transit experiments on LLM serving: a **frozen copy** of
+[Disaggregated_Inference_Sim](https://github.com/BrendanJamesLynskey/Disaggregated_Inference_Sim) at commit
+[`a2c14e2`](https://github.com/BrendanJamesLynskey/Disaggregated_Inference_Sim/commit/a2c14e23f300bb04881e392d453280d961d4113e)
+(2026-10-28), with its history, kept so that every number in the
+[Fourier Optics for Inference](https://github.com/BrendanJamesLynskey/LLM_Hub_Fourier_Optics_Inference) and
+[Compute in Transit](https://github.com/BrendanJamesLynskey/LLM_Hub_Compute_in_Transit) series reproduces exactly.
+
+**What is here and not in the general simulator:**
+- the hypothetical optical-MAC device (`optical`);
+- the Fourier-optical transform engine (`optical-fft`, `optical-fft-small`), its ENOB, mask-rate and energy model;
+- FFT-mixing models (Hyena-2, a 1:3 hybrid, block-circulant weights) and their op ledger;
+- KV hand-off compression in transit, and the declared link kernel (`LinkKernel`);
+- results.md sections 11–13, 15 and 27, and the tests behind them.
+
+**Frozen:** this copy is not developed further and does not receive the general simulator's later fixes. It already
+includes the prefill-dispatch fix (Disaggregated_Inference_Sim PR #2). For serving work without optics, use
+[Disaggregated_Inference_Sim](https://github.com/BrendanJamesLynskey/Disaggregated_Inference_Sim).
+
+**Renamed so both install side by side:** the package is `optical_serving_sim` and the command
+`optical-serving-sim`; everything else, results included, is as at `a2c14e2`. The description below is the
+simulator's own README at that commit.
+
+## The simulator at a2c14e2
 
 A [SimPy](https://simpy.readthedocs.io/) discrete-event simulator of
-**prefill/decode-disaggregated LLM serving**, built as the companion code for the
-[LLM Inference Simulators](https://github.com/BrendanJamesLynskey/LLM_Hub_Inference_Simulators)
-presentation series.
-
-The goal is **learnability**: a small, readable, fully tested simulator that
-shows how a serious architecture simulator is structured. It has a pluggable cost
-model, a discrete-event engine, passive probes, metrics with hot-spot attribution,
-Chrome traces, an exact accelerated path, and a test ladder from unit tests to
+**prefill/decode-disaggregated LLM serving**, with a pluggable cost model, a discrete-event engine, passive probes,
+metrics with hot-spot attribution, Chrome traces, an exact accelerated path, and a test ladder from unit tests to
 queueing theory.
 
 * Roofline cost model for prefill and decode (Llama-3-8B/70B; H100, A100 and a
@@ -142,49 +160,49 @@ source .venv/bin/activate
 pip install -e .[dev]
 pytest                                   # 325 tests, about a minute
 
-disagg-sim                               # one disaggregated run (70B, 4xH100 per instance)
-disagg-sim --compare                     # colocated vs disaggregated, same request stream
-disagg-sim --compare --sweep-rate 2 3 4 5 6 8
-disagg-sim --prefill 2 --rate 6 --link eth-25g   # watch the hot-spot move to the KV link
-disagg-sim --trace run.json              # open in https://ui.perfetto.dev
-disagg-sim --fast                        # exact accelerated decode path
-disagg-sim --dvfs --decode-power-cap 250 # energy savings that cost (almost) no latency
-disagg-sim --power-cap 400 --dvfs        # cap everything: watch TTFT pay for it
+optical-serving-sim                               # one disaggregated run (70B, 4xH100 per instance)
+optical-serving-sim --compare                     # colocated vs disaggregated, same request stream
+optical-serving-sim --compare --sweep-rate 2 3 4 5 6 8
+optical-serving-sim --prefill 2 --rate 6 --link eth-25g   # watch the hot-spot move to the KV link
+optical-serving-sim --trace run.json              # open in https://ui.perfetto.dev
+optical-serving-sim --fast                        # exact accelerated decode path
+optical-serving-sim --dvfs --decode-power-cap 250 # energy savings that cost (almost) no latency
+optical-serving-sim --power-cap 400 --dvfs        # cap everything: watch TTFT pay for it
 
 # heterogeneous pools, FFT-mixing models, the optical transform engine, KV compression
-disagg-sim --model llama3-8b --devices-per-instance 1 --prefill-device h100 --decode-device a100 --ppa
-disagg-sim --model llama3-8b-hyena-circ --prefill-lm-head last --devices-per-instance 1 \
+optical-serving-sim --model llama3-8b --devices-per-instance 1 --prefill-device h100 --decode-device a100 --ppa
+optical-serving-sim --model llama3-8b-hyena-circ --prefill-lm-head last --devices-per-instance 1 \
            --prefill-device optical-fft --ft-enob 11 --ft-mask-rate 20000 --ft-overlap --fft-efficiency 0.0625
-disagg-sim --model llama3-8b --devices-per-instance 1 --link eth-25g --rate 14 --kv-compress fp8 --kv-compress-at transit
+optical-serving-sim --model llama3-8b --devices-per-instance 1 --link eth-25g --rate 14 --kv-compress fp8 --kv-compress-at transit
 
 # Causal Encoder-Decoder: prefill runs the encoder only; replay on prefill (the paper) or on decode (SGLang RFC)
-disagg-sim --model llama3-70b-ced --prompt 8192 --output 128 --rate 3
-disagg-sim --model llama3-70b-ced --ced-replay-on decode --prefill-devices-per-instance 2 --prompt 8192 --output 128 --rate 3
+optical-serving-sim --model llama3-70b-ced --prompt 8192 --output 128 --rate 3
+optical-serving-sim --model llama3-70b-ced --ced-replay-on decode --prefill-devices-per-instance 2 --prompt 8192 --output 128 --rate 3
 
 # scheduling and KV memory: chunked prefill, paged KV with preemption, prefix caching (colocated or disaggregated)
-disagg-sim --mode colocated --model mistral-7b --device a100 --devices-per-instance 1 --prefill 1 --decode 0 \
+optical-serving-sim --mode colocated --model mistral-7b --device a100 --devices-per-instance 1 --prefill 1 --decode 0 \
            --prompt 2666 --prompt-cv 1.17 --output 481 --output-cv 0.59 --rate 2 --batch-policy chunked --max-num-batched-tokens 512
-disagg-sim --mode colocated --model opt-13b --device a100-40g --devices-per-instance 1 --prefill 1 --decode 0 \
+optical-serving-sim --mode colocated --model opt-13b --device a100-40g --devices-per-instance 1 --prefill 1 --decode 0 \
            --prompt 161 --prompt-cv 1 --output 338 --output-cv 1 --rate 6 --kv-policy paged --preemption swap --host-link pcie4
-disagg-sim --mode colocated --model mistral-7b --device a100 --devices-per-instance 1 --prefill 1 --decode 0 \
+optical-serving-sim --mode colocated --model mistral-7b --device a100 --devices-per-instance 1 --prefill 1 --decode 0 \
            --prompt 384 --prompt-cv 0.19 --output 6 --output-cv 0.19 --turns 4 --rate 4 --prefix-caching
 
 # levers II: parallelism, formats, speculative decoding, named workloads; the sweep
-disagg-sim --model opt-13b --device a100-40g --devices-per-instance 1 --prompt 161 --prompt-cv 1 --output 338 \
+optical-serving-sim --model opt-13b --device a100-40g --devices-per-instance 1 --prompt 161 --prompt-cv 1 --output 338 \
            --output-cv 1 --rate 4 --kv-policy paged
-disagg-sim --mode colocated --model llama3-70b --tp 4 --weight-format fp8 --compute-format fp8 --workload chat --rate 2
-disagg-sim --mode colocated --model llama3-8b --devices-per-instance 1 --speculative mtp --gamma 3 --alpha 0.7 --rate 1
-disagg-sim --mode colocated --model mixtral-8x7b --devices-per-instance 2 --tp 2 --ep 2 --expert-imbalance 1.25
+optical-serving-sim --mode colocated --model llama3-70b --tp 4 --weight-format fp8 --compute-format fp8 --workload chat --rate 2
+optical-serving-sim --mode colocated --model llama3-8b --devices-per-instance 1 --speculative mtp --gamma 3 --alpha 0.7 --rate 1
+optical-serving-sim --mode colocated --model mixtral-8x7b --devices-per-instance 2 --tp 2 --ep 2 --expert-imbalance 1.25
 
 # a declared link kernel compressing the KV hand-off in transit (brief 06C; illustrative)
-disagg-sim --model llama3-8b --devices-per-instance 1 --link ib-ndr --kv-compress freq-keep-k --link-kernel pluggable-99-free
+optical-serving-sim --model llama3-8b --devices-per-instance 1 --link ib-ndr --kv-compress freq-keep-k --link-kernel pluggable-99-free
 
 python examples/benchmark_acceleration.py   # measure every acceleration technique
 python examples/results.py               # regenerate examples/results.md (every quoted number)
 python examples/tradeoffs.py             # the trade-off sweep -> examples/tradeoffs.json (about an hour, 2 workers)
 ```
 
-Example report (`disagg-sim --prefill 2 --rate 6 --link eth-25g`):
+Example report (`optical-serving-sim --prefill 2 --rate 6 --link eth-25g`):
 
 ```
 utilisation  prefill-0 37%  prefill-1 23%  decode-0 100%  kv-link 96%
@@ -198,15 +216,15 @@ hot-spot     stage=kv_wait -> kv-link (busy 96%)   busy>90%: decode-0, kv-link
 
 | Module | Role |
 |--------|------|
-| `src/disagg_sim/hardware.py` | `ModelSpec`, `Accelerator`, `Link`, `Parallel`, storage formats, the link kernel (`LinkKernel`, `KernelWork`), and the roofline `CostModel` (the only place that knows about time) |
-| `src/disagg_sim/workload.py` | `Request` and all its timestamps; lognormal lengths; Poisson arrivals; sessions with shared prefixes (`chat_sessions`); named workloads (`WORKLOADS`); JSON replay |
-| `src/disagg_sim/sim.py` | SimPy processes for prefill, decode and colocated instances; the KV link as a `simpy.Resource`; routers; `FastDecodeInstance`; `ScheduledInstance` (batching policy, paged KV, preemption, speculative decoding), its pool versions `ScheduledPrefillInstance` / `ScheduledDecodeInstance`, and `PrefixCache` |
-| `src/disagg_sim/speculative.py` | Speculative decoding: Leviathan et al.'s closed forms and the acceptance draws (bit-identical in JS) |
-| `src/disagg_sim/metrics.py` | Percentiles, goodput, utilisation, MFU/MBU, stage breakdown, hot-spot attribution, Little's law |
-| `src/disagg_sim/ppa.py` | Area, silicon cost and perf/W, perf/mm², perf/$ per pool (FHE_Accelerator_Sim's method, illustrative) |
-| `src/disagg_sim/trace.py` | Chrome trace-event export |
-| `src/disagg_sim/search.py` | Analytic capacity bounds, parallel sweeps, bisection for the maximum sustainable load |
-| `src/disagg_sim/cli.py` | The `disagg-sim` command |
+| `src/optical_serving_sim/hardware.py` | `ModelSpec`, `Accelerator`, `Link`, `Parallel`, storage formats, the link kernel (`LinkKernel`, `KernelWork`), and the roofline `CostModel` (the only place that knows about time) |
+| `src/optical_serving_sim/workload.py` | `Request` and all its timestamps; lognormal lengths; Poisson arrivals; sessions with shared prefixes (`chat_sessions`); named workloads (`WORKLOADS`); JSON replay |
+| `src/optical_serving_sim/sim.py` | SimPy processes for prefill, decode and colocated instances; the KV link as a `simpy.Resource`; routers; `FastDecodeInstance`; `ScheduledInstance` (batching policy, paged KV, preemption, speculative decoding), its pool versions `ScheduledPrefillInstance` / `ScheduledDecodeInstance`, and `PrefixCache` |
+| `src/optical_serving_sim/speculative.py` | Speculative decoding: Leviathan et al.'s closed forms and the acceptance draws (bit-identical in JS) |
+| `src/optical_serving_sim/metrics.py` | Percentiles, goodput, utilisation, MFU/MBU, stage breakdown, hot-spot attribution, Little's law |
+| `src/optical_serving_sim/ppa.py` | Area, silicon cost and perf/W, perf/mm², perf/$ per pool (FHE_Accelerator_Sim's method, illustrative) |
+| `src/optical_serving_sim/trace.py` | Chrome trace-event export |
+| `src/optical_serving_sim/search.py` | Analytic capacity bounds, parallel sweeps, bisection for the maximum sustainable load |
+| `src/optical_serving_sim/cli.py` | The `optical-serving-sim` command |
 | `web/sim_engine.js` | The browser port used in the deck |
 | `examples/benchmark_acceleration.py` | Speed and exactness of each acceleration technique |
 | `examples/results.py` | Regenerates `examples/results.md`, the source of every quoted number (with before/after for the 2026-10-03 correction) |
@@ -440,8 +458,10 @@ The tools and methods this repository measures with are explained, with their ov
 
 ## Part of
 
-The [LLM Inference Simulators](https://github.com/BrendanJamesLynskey/LLM_Hub_Inference_Simulators)
-series on the [LLMs hub](https://github.com/BrendanJamesLynskey/LLMs).
+The [Fourier Optics for Inference](https://github.com/BrendanJamesLynskey/LLM_Hub_Fourier_Optics_Inference) and
+[Compute in Transit](https://github.com/BrendanJamesLynskey/LLM_Hub_Compute_in_Transit) series. The general
+simulator it was copied from is
+[Disaggregated_Inference_Sim](https://github.com/BrendanJamesLynskey/Disaggregated_Inference_Sim).
 
 ## Licence
 

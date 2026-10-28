@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from disagg_sim.hardware import ACCELERATORS, B200, GB200, LLAMA3_70B, CostModel
+from optical_serving_sim.hardware import ACCELERATORS, B200, GB200, LLAMA3_70B, CostModel
 
 
 def test_gb200_figures():

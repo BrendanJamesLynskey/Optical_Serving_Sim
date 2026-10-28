@@ -1,4 +1,4 @@
-// disagg-sim, JavaScript port of Disaggregated_Inference_Sim (SimPy).
+// optical-serving-sim, JavaScript port of Disaggregated_Inference_Sim (SimPy).
 // Same cost model, same scheduling rules, same metrics; a hand-written
 // event heap stands in for SimPy's environment.
 // 2026-10-04: heterogeneous pools, FFT-mixing models (Hyena, hybrid, block-circulant,

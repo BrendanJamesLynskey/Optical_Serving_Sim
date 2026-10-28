@@ -45,11 +45,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from disagg_sim.hardware import ACCELERATORS, LLAMA3_70B, Parallel  # noqa: E402
-from disagg_sim.metrics import summarise  # noqa: E402
-from disagg_sim.sim import SimConfig, Simulation, simulate  # noqa: E402
-from disagg_sim.speculative import Speculative  # noqa: E402
-from disagg_sim.workload import WORKLOADS  # noqa: E402
+from optical_serving_sim.hardware import ACCELERATORS, LLAMA3_70B, Parallel  # noqa: E402
+from optical_serving_sim.metrics import summarise  # noqa: E402
+from optical_serving_sim.sim import SimConfig, Simulation, simulate  # noqa: E402
+from optical_serving_sim.speculative import Speculative  # noqa: E402
+from optical_serving_sim.workload import WORKLOADS  # noqa: E402
 
 OUT = ROOT / "examples" / "tradeoffs.json"
 GPUS = 8
